@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Бронь №{{ booking.pk }} — Коворкинг «Точка»{% endblock %}
+{% block content %}
+<section class="page-intro"><a class="back-link" href="{% url 'dashboard' %}">← Мои бронирования</a><span class="eyebrow">Бронирование №{{ booking.pk }}</span><h1>{{ booking.place.name }}</h1><p>{{ booking.start_at|date:"j E Y" }} · {{ booking.start_at|date:"H:i" }}–{{ booking.end_at|date:"H:i" }} · {{ booking.place.get_zone_display }}</p></section>
+<section class="section detail-layout">
+  <article class="detail-card">
+    <div class="detail-status"><span>Статус брони</span><span class="badge {% if booking.status == 'paid' %}badge-active{% elif booking.status == 'unpaid' %}badge-new{% elif booking.status == 'cancelled' %}badge-cancel{% else %}badge-done{% endif %}">{{ booking.get_status_display }}</span></div>
+    <h2>Состав заказа</h2>
+    <div class="receipt-line"><span>{{ booking.duration_hours }} ч · {{ tariff_label }}{% if booking.duration_hours >= 8 and booking.place.kind == 'workspace' %} (от 8 часов подряд){% endif %}</span><span>{{ base_total|floatformat:0 }} ₽</span></div>
+    {% for service in service_lines %}<div class="receipt-line"><span>{{ service.service__name }}</span><span>{{ service.price|floatformat:0 }} ₽</span></div>{% endfor %}
+    <div class="receipt-total"><strong>Итого</strong><strong>{{ booking.total|floatformat:0 }} ₽</strong></div>
+    {% if booking.status == 'unpaid' %}
+      <form method="post" action="{% url 'booking_pay' booking.pk %}">{% csrf_token %}<button class="btn btn-primary btn-wide" type="submit">Оплатить и получить пропуск</button><p class="fine-print">Демо-режим: оплата подтверждается без подключения платёжного провайдера.</p></form>
+    {% elif booking.status == 'paid' %}
+      {% if booking.day_pass %}<a class="btn btn-outline btn-wide" href="{% url 'pass_detail' booking.day_pass.pk %}">Открыть пропуск · {{ booking.day_pass.code }}</a>{% endif %}
+      <form method="post" action="{% url 'booking_extend' booking.pk %}" class="inline-action">{% csrf_token %}<button class="btn btn-outline" type="submit">Продлить на час</button></form>
+    {% endif %}
+    {% if booking.status != 'cancelled' and booking.start_at > now %}
+      <form method="post" action="{% url 'booking_cancel' booking.pk %}" class="cancel-form">{% csrf_token %}<button class="btn btn-danger btn-wide" type="submit">Отменить бронирование</button></form>
+    {% endif %}
+  </article>
+  <aside class="detail-aside"><span class="feature-icon icon-mint">{% if booking.place.kind == 'meeting' %}▦{% else %}⌘{% endif %}</span><h3>{{ booking.place.name }}</h3><p>{{ booking.place.description|default:"Всё необходимое для комфортной работы." }}</p><dl><div><dt>Тип</dt><dd>{{ booking.place.get_kind_display }}</dd></div><div><dt>Зона</dt><dd>{{ booking.place.get_zone_display }}</dd></div><div><dt>Вместимость</dt><dd>{{ booking.place.capacity }} мест</dd></div></dl></aside>
+</section>
+{% endblock %}

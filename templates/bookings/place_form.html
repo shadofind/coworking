@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Коворкинг «Точка»{% endblock %}
+{% block content %}
+<section class="page-intro"><a class="back-link" href="{% url 'places' %}">← Карта мест</a><span class="eyebrow">Управление пространством</span><h1>{{ title }}</h1></section>
+<section class="section section-tight"><form method="post" class="form-card form-stack">{% csrf_token %}{% include "includes/form_fields.html" with form=form %}<div class="form-actions"><button class="btn btn-primary" type="submit">Сохранить</button><a class="btn btn-quiet" href="{% url 'places' %}">Отмена</a></div></form></section>
+{% endblock %}

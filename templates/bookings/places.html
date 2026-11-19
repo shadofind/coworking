@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Карта мест — Коворкинг «Точка»{% endblock %}
+{% block content %}
+<section class="page-intro page-intro-row"><div><span class="eyebrow">Найдите своё место</span><h1>Карта мест</h1><p>Выберите рабочую зону или переговорную для вашего дня.</p></div>{% if user.is_staff %}<a class="btn btn-primary" href="{% url 'admin_place_create' %}">Добавить место</a>{% endif %}</section>
+<section class="section section-tight">
+  <form class="filter-bar" method="get">
+    <label class="sr-only" for="kind">Тип места</label><select id="kind" name="kind"><option value="">Все типы</option><option value="workspace" {% if kind == 'workspace' %}selected{% endif %}>Рабочее место</option><option value="meeting" {% if kind == 'meeting' %}selected{% endif %}>Переговорная</option></select>
+    <label class="sr-only" for="zone">Зона</label><select id="zone" name="zone"><option value="">Все зоны</option><option value="open" {% if zone == 'open' %}selected{% endif %}>Открытая зона</option><option value="quiet" {% if zone == 'quiet' %}selected{% endif %}>Тихая комната</option><option value="meeting" {% if zone == 'meeting' %}selected{% endif %}>Переговорные</option></select>
+    <label class="sr-only" for="q">Поиск по названию</label><input id="q" name="q" type="search" placeholder="Например, Место 3" value="{{ search }}">
+    <button class="btn btn-primary" type="submit">Найти</button>
+  </form>
+  <div class="place-grid">
+    {% for place in places %}
+      <article class="place-card">
+        <div class="place-card-art {% cycle 'art-mint' 'art-sand' 'art-lilac' %}"><span class="place-number">№{{ forloop.counter|stringformat:"02d" }}</span><span class="available-pill"><i></i> Доступно</span></div>
+        <div class="place-card-content"><div><span class="place-kind">{{ place.get_kind_display }} · {{ place.get_zone_display }}</span><h3>{{ place.name }}</h3><p class="muted">{{ place.description|default:"Удобное место для продуктивной работы." }}</p></div><span class="capacity">{{ place.capacity }} мест</span></div>
+        <div class="place-card-footer">{% if user.is_staff %}<a class="text-link" href="{% url 'admin_place_edit' place.pk %}">Изменить</a><form method="post" action="{% url 'admin_place_delete' place.pk %}">{% csrf_token %}<button class="link-button danger-text" type="submit">Удалить</button></form>{% endif %}<a class="btn btn-outline btn-small" href="{% url 'booking_create' %}?place={{ place.pk }}">Забронировать</a></div>
+      </article>
+    {% empty %}<div class="empty-state">По вашему запросу ничего не найдено.</div>{% endfor %}
+  </div>
+</section>
+{% endblock %}

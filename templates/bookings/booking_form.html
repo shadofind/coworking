@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Новая бронь — Коворкинг «Точка»{% endblock %}
+{% block content %}
+<section class="page-intro"><span class="eyebrow">Новая бронь</span><h1>Выберите место и время</h1><p>Занятые часы обновляются без перезагрузки. Время работы — с 08:00 до 22:00.</p></section>
+<section class="section booking-layout">
+  <form method="post" class="form-card" id="booking-form" data-availability-url="{% url 'availability' %}">
+    {% csrf_token %}
+    <h2>Детали бронирования</h2>
+    {% if form.non_field_errors %}<div class="notice notice-error">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="field{% if form.place.errors %} field-error{% endif %}"><label for="{{ form.place.id_for_label }}">{{ form.place.label }}</label>{{ form.place }}{% for error in form.place.errors %}<small class="error-text">{{ error }}</small>{% endfor %}</div>
+    <div class="field{% if form.day.errors %} field-error{% endif %}"><label for="{{ form.day.id_for_label }}">{{ form.day.label }}</label>{{ form.day }}{% for error in form.day.errors %}<small class="error-text">{{ error }}</small>{% endfor %}</div>
+    <div class="time-fields">
+      <div class="field"><label for="{{ form.start_hour.id_for_label }}">Начало</label>{{ form.start_hour }}{% for error in form.start_hour.errors %}<small class="error-text">{{ error }}</small>{% endfor %}</div>
+      <div class="field"><label for="{{ form.end_hour.id_for_label }}">Окончание</label>{{ form.end_hour }}{% for error in form.end_hour.errors %}<small class="error-text">{{ error }}</small>{% endfor %}</div>
+    </div>
+    <div class="field service-field"><span class="field-label">Дополнительные услуги</span><div class="checkbox-list">{% for checkbox in form.services %}<label class="checkbox-option">{{ checkbox.tag }}<span>{{ checkbox.choice_label }}</span></label>{% empty %}<span class="muted">Пока нет дополнительных услуг.</span>{% endfor %}</div></div>
+    <div class="price-summary"><span>Стоимость рассчитывается по выбранным часам и тарифу</span><strong>Итог — после проверки брони</strong></div>
+    <button class="btn btn-primary btn-wide" type="submit">Подтвердить бронь</button>
+    <p class="fine-print">Оформляя бронь, вы соглашаетесь с правилами посещения коворкинга.</p>
+  </form>
+  <aside class="availability-card">
+    <div class="availability-heading"><div><span class="eyebrow">Живая сетка</span><h2>Занятость по часам</h2></div><span class="live-indicator">Обновляется</span></div>
+    <p id="availability-caption" class="muted">Выберите место и дату, чтобы загрузить доступность.</p>
+    <div class="slot-grid" id="availability-grid" aria-live="polite"></div>
+    <div class="legend"><span><i class="legend-free"></i>Свободно</span><span><i class="legend-busy"></i>Занято</span><span><i class="legend-past"></i>Прошедшее</span><span><i class="legend-selected"></i>Выбрано</span></div>
+    <div class="availability-tip"><span>✳</span><span>Пересечение броней невозможно — система перепроверит доступность перед подтверждением.</span></div>
+  </aside>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{% load static %}{% static 'bookings/js/availability.js' %}" defer></script>{% endblock %}

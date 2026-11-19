@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Управление бронированиями — Коворкинг «Точка»{% endblock %}
+{% block content %}
+<section class="page-intro"><span class="eyebrow">Рабочее пространство администратора</span><h1>Все бронирования</h1><p>Поиск, фильтрация и управление бронями коворкинга.</p></section>
+<section class="section section-tight">
+  <form method="get" class="filter-bar admin-filter">
+    <input type="search" name="q" placeholder="Поиск по резиденту или месту" value="{{ search }}">
+    <select name="status"><option value="">Любой статус</option>{% for value,label in statuses %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+    <select name="kind"><option value="">Все типы</option><option value="workspace" {% if kind == 'workspace' %}selected{% endif %}>Рабочее место</option><option value="meeting" {% if kind == 'meeting' %}selected{% endif %}>Переговорная</option></select>
+    <select name="resident"><option value="">Все резиденты</option>{% for account in residents %}<option value="{{ account.pk }}" {% if resident == account.pk|stringformat:"s" %}selected{% endif %}>{{ account.get_full_name|default:account.username }}</option>{% endfor %}</select>
+    <select name="sort"><option value="-start_at" {% if sort == '-start_at' %}selected{% endif %}>Сначала новые</option><option value="start_at" {% if sort == 'start_at' %}selected{% endif %}>Сначала ранние</option><option value="-total" {% if sort == '-total' %}selected{% endif %}>Сначала дорогие</option><option value="total" {% if sort == 'total' %}selected{% endif %}>Сначала недорогие</option><option value="-created_at" {% if sort == '-created_at' %}selected{% endif %}>Недавно оформленные</option></select>
+    <button class="btn btn-primary" type="submit">Применить</button>
+  </form>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Бронь</th><th>Место</th><th>Время</th><th>Резидент</th><th>Сумма</th><th>Статус</th></tr></thead><tbody>
+  {% for booking in page_obj %}<tr><td><a href="{% url 'booking_detail' booking.pk %}">№{{ booking.pk }}</a></td><td>{{ booking.place.name }}</td><td>{{ booking.start_at|date:"d.m.Y H:i" }}–{{ booking.end_at|date:"H:i" }}</td><td>{{ booking.resident.get_full_name|default:booking.resident.username }}</td><td>{{ booking.total|floatformat:0 }} ₽</td><td><span class="badge {% if booking.status == 'paid' %}badge-active{% elif booking.status == 'unpaid' %}badge-new{% elif booking.status == 'cancelled' %}badge-cancel{% else %}badge-done{% endif %}">{{ booking.get_status_display }}</span></td></tr>
+  {% empty %}<tr><td colspan="6" class="table-empty">Бронирований по выбранным условиям нет.</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% if page_obj.paginator.num_pages > 1 %}<nav class="pagination" aria-label="Страницы">{% if page_obj.has_previous %}<a href="?q={{ search|urlencode }}&status={{ status|urlencode }}&kind={{ kind|urlencode }}&resident={{ resident|urlencode }}&sort={{ sort|urlencode }}&page={{ page_obj.previous_page_number }}">← Назад</a>{% endif %}<span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a href="?q={{ search|urlencode }}&status={{ status|urlencode }}&kind={{ kind|urlencode }}&resident={{ resident|urlencode }}&sort={{ sort|urlencode }}&page={{ page_obj.next_page_number }}">Далее →</a>{% endif %}</nav>{% endif %}
+</section>
+{% endblock %}

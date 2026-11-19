@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Мои бронирования — Коворкинг «Точка»{% endblock %}
+{% block content %}
+<section class="page-intro page-intro-row"><div><span class="eyebrow">Личный кабинет</span><h1>Мои бронирования</h1><p>Здравствуйте, {{ user.first_name|default:user.username }}! Здесь собраны ваши брони и пропуска.</p></div><a class="btn btn-primary" href="{% url 'booking_create' %}">+ Новая бронь</a></section>
+<section class="section section-tight">
+  <div class="section-heading"><div><h2>История бронирований</h2><p class="muted">Управляйте будущими визитами и проверяйте статус оплаты.</p></div></div>
+  <div class="booking-list">
+    {% for booking in bookings %}
+      <a class="booking-row" href="{% url 'booking_detail' booking.pk %}">
+        <span class="booking-icon">{% if booking.place.kind == 'meeting' %}▦{% else %}⌘{% endif %}</span>
+        <span class="booking-main"><strong>Бронь №{{ booking.pk }} · {{ booking.place.name }}</strong><small>{{ booking.start_at|date:"j E Y" }} · {{ booking.start_at|date:"H:i" }}–{{ booking.end_at|date:"H:i" }}</small></span>
+        <span class="badge {% if booking.status == 'paid' %}badge-active{% elif booking.status == 'unpaid' %}badge-new{% elif booking.status == 'cancelled' %}badge-cancel{% else %}badge-done{% endif %}">{{ booking.get_status_display }}</span>
+        <span class="booking-total">{{ booking.total|floatformat:0 }} ₽</span><span class="chevron">→</span>
+      </a>
+    {% empty %}
+      <div class="empty-state"><span class="empty-icon">◷</span><h3>Пока нет бронирований</h3><p>Выберите место, чтобы запланировать свой первый визит.</p><a class="btn btn-primary" href="{% url 'booking_create' %}">Найти место</a></div>
+    {% endfor %}
+  </div>
+</section>
+{% if passes %}
+<section class="section section-tight"><div class="section-heading"><div><span class="eyebrow">Вход в коворкинг</span><h2>Ваши пропуска</h2></div></div><div class="pass-list">
+{% for day_pass in passes %}<a class="pass-row" href="{% url 'pass_detail' day_pass.pk %}"><span class="pass-mark">✓</span><span><strong>{{ day_pass.valid_on|date:"j E Y" }}</strong><small>{{ day_pass.booking.place.name }} · бронь №{{ day_pass.booking_id }}</small></span><code>{{ day_pass.code }}</code></a>{% endfor %}
+</div></section>
+{% endif %}
+{% if user.is_staff or user.profile.role == 'accountant' %}
+<section class="section section-tight staff-shortcuts"><span class="eyebrow">Рабочие инструменты</span><div class="shortcut-grid">{% if user.is_staff %}<a href="{% url 'admin_bookings' %}">Все бронирования <span>→</span></a><a href="{% url 'admin_reports' %}">Сводные показатели <span>→</span></a><a href="{% url 'admin:index' %}">Админ-панель Django <span>→</span></a>{% endif %}<a href="{% url 'payments' %}">Учёт оплат <span>→</span></a></div></section>
+{% endif %}
+{% endblock %}

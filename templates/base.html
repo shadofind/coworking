@@ -1,0 +1,53 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0F766E">
+  <title>{% block title %}Коворкинг «Точка»{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'bookings/css/site.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{% url 'home' %}"><span class="brand-mark">т.</span> Коворкинг «Точка»</a>
+    <nav class="main-nav" aria-label="Основная навигация">
+      <a href="{% url 'tariffs' %}">Тарифы</a>
+      <a href="{% url 'places' %}">Карта мест</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}">Мои брони</a>
+        {% if user.is_staff %}
+          <a href="{% url 'admin_bookings' %}">Управление</a>
+          <a href="{% url 'admin_reports' %}">Отчёты</a>
+        {% endif %}
+        {% if user.is_staff or user.profile.role == 'accountant' %}
+          <a href="{% url 'payments' %}">Оплаты</a>
+        {% endif %}
+      {% endif %}
+    </nav>
+    <div class="nav-actions">
+      {% if user.is_authenticated %}
+        <a class="btn btn-outline btn-small" href="{% url 'profile' %}">Профиль</a>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="link-button" type="submit">Выйти</button></form>
+      {% else %}
+        <a class="btn btn-outline btn-small" href="{% url 'login' %}">Войти</a>
+        <a class="btn btn-primary btn-small" href="{% url 'register' %}">Регистрация</a>
+      {% endif %}
+    </div>
+  </header>
+  <main>
+    {% if messages %}
+      <div class="messages" role="status">
+        {% for message in messages %}<div class="notice notice-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">
+    <a class="brand" href="{% url 'home' %}"><span class="brand-mark">т.</span> Коворкинг «Точка»</a>
+    <span>Работайте в своём ритме · ежедневно с 08:00 до 22:00</span>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

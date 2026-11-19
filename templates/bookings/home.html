@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Коворкинг «Точка» — бронирование рабочих мест{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <span class="eyebrow">Пространство для ваших идей</span>
+    <h1>Рабочее место и переговорная по часам — без пересечений</h1>
+    <p>Выберите место на карте, проверьте свободные часы и забронируйте онлайн. Пропуск будет доступен в личном кабинете.</p>
+    <div class="hero-actions">
+      <a class="btn btn-accent" href="{% url 'booking_create' %}">Забронировать место <span aria-hidden="true">→</span></a>
+      <a class="btn btn-quiet" href="{% url 'places' %}">Посмотреть места</a>
+    </div>
+    <div class="hero-trust"><span class="status-dot"></span> Живая сетка занятости · оплата без очереди</div>
+  </div>
+  <div class="hero-card">
+    <div class="hero-card-top"><span class="mini-icon">✳</span><span class="badge badge-active">Сегодня свободно</span></div>
+    <div class="hero-illustration" aria-hidden="true">
+      <div class="desk desk-one"><span></span><i></i></div><div class="desk desk-two"><span></span><i></i></div>
+      <div class="plant">✿</div><div class="sun"></div>
+    </div>
+    <div class="hero-card-bottom"><div><strong>Тихая комната</strong><small>Место 03 · у окна</small></div><span class="price">от 250 ₽<small>/ час</small></span></div>
+  </div>
+</section>
+
+<section class="section section-tight">
+  <div class="section-heading"><div><span class="eyebrow">Всё для продуктивного дня</span><h2>Пространство под ваши задачи</h2></div><a class="text-link" href="{% url 'places' %}">Все места <span aria-hidden="true">→</span></a></div>
+  <div class="feature-grid">
+    <article class="feature-card"><span class="feature-icon icon-mint">⌘</span><h3>Рабочие места</h3><p>Открытая зона и тихая комната. Выберите свой формат работы.</p><span class="feature-meta">от 250 ₽ / час</span></article>
+    <article class="feature-card"><span class="feature-icon icon-sand">▦</span><h3>Переговорные</h3><p>Комнаты на 4–10 человек с экраном и всем необходимым.</p><span class="feature-meta">от 600 ₽ / час</span></article>
+    <article class="feature-card"><span class="feature-icon icon-lilac">◷</span><h3>Гибкие тарифы</h3><p>Почасовой, дневной и месячный — цена рассчитается автоматически.</p><span class="feature-meta">Прозрачная стоимость</span></article>
+  </div>
+</section>
+
+<section class="section places-preview">
+  <div class="section-heading"><div><span class="eyebrow">Ваше место уже ждёт</span><h2>Популярные места</h2></div><a class="text-link" href="{% url 'places' %}">К карте мест <span aria-hidden="true">→</span></a></div>
+  <div class="place-grid">
+    {% for place in places %}
+      <article class="place-card">
+        <div class="place-card-art {% cycle 'art-mint' 'art-sand' 'art-lilac' %}"><span class="place-number">{{ forloop.counter|stringformat:"02d" }}</span><span class="available-pill"><i></i> Можно забронировать</span></div>
+        <div class="place-card-content"><div><span class="place-kind">{{ place.get_kind_display }} · {{ place.get_zone_display }}</span><h3>{{ place.name }}</h3></div><span class="capacity">{{ place.capacity }} мест</span></div>
+      </article>
+    {% empty %}
+      <div class="empty-state">Места скоро появятся. Загляните в раздел управления или панель администратора.</div>
+    {% endfor %}
+  </div>
+  <div class="center-action"><a class="btn btn-outline" href="{% url 'places' %}">Выбрать место</a></div>
+</section>
+{% endblock %}

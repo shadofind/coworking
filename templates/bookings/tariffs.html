@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Тарифы — Коворкинг «Точка»{% endblock %}
+{% block content %}
+<section class="page-intro"><span class="eyebrow">Честные цены</span><h1>Тарифы</h1><p>Выберите удобный формат — стоимость бронирования рассчитывается автоматически.</p></section>
+<section class="section section-tight">
+  <div class="tariff-grid">
+    {% for tariff in tariffs %}
+      <article class="tariff-card">
+        <span class="tariff-type">{{ tariff.get_place_kind_display }}</span>
+        <h2>{{ tariff.name }}</h2>
+        <p class="tariff-price">{{ tariff.price|floatformat:0 }} ₽<small>{% if tariff.plan == 'hourly' %}/ час{% elif tariff.plan == 'monthly' %}/ месяц{% else %}/ день{% endif %}</small></p>
+        <p class="muted">{% if tariff.plan == 'daily' %}Для брони рабочего места от 8 часов подряд.{% elif tariff.plan == 'monthly' %}Фиксированное место на месяц.{% elif tariff.place_kind == 'meeting' %}Цена указана за комнату, а не за человека.{% else %}Гибкая оплата за выбранное время.{% endif %}</p>
+        <a class="btn btn-outline" href="{% url 'booking_create' %}">Выбрать место</a>
+      </article>
+    {% empty %}
+      <article class="tariff-card"><span class="tariff-type">Рабочие места</span><h2>Почасовой</h2><p class="tariff-price">250 ₽<small>/ час</small></p><p class="muted">Дневной тариф 1 400 ₽ применяется от 8 часов подряд.</p><a class="btn btn-outline" href="{% url 'booking_create' %}">Выбрать место</a></article>
+      <article class="tariff-card"><span class="tariff-type">Переговорные</span><h2>Почасовой</h2><p class="tariff-price">600 ₽<small>/ час</small></p><p class="muted">Цена указана за комнату, а не за человека.</p><a class="btn btn-outline" href="{% url 'booking_create' %}">Выбрать место</a></article>
+    {% endfor %}
+  </div>
+  <p class="fine-print">Итоговая сумма рассчитывается на сервере по выбранным часам и тарифу.</p>
+</section>
+{% endblock %}

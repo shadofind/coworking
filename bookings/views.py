@@ -2,7 +2,6 @@ import csv
 import json
 from datetime import date, datetime, time
 from decimal import Decimal
-
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login
@@ -74,9 +73,19 @@ def dashboard(request):
 
 @login_required
 def booking_create(request):
+    local_now = timezone.localtime()
+    booking_day = local_now.date()
+    if local_now.hour >= 21:
+        booking_day += timezone.timedelta(days=1)
+    start_hour = max(8, local_now.hour + 1) if booking_day == local_now.date() else 8
     form = BookingForm(
         request.POST or None,
-        initial={"place": request.GET.get("place"), "day": timezone.localdate().isoformat()},
+        initial={
+            "place": request.GET.get("place"),
+            "day": booking_day.isoformat(),
+            "start_hour": start_hour,
+            "end_hour": min(start_hour + 1, 22),
+        },
     )
     if request.method == "POST" and form.is_valid():
         data = form.cleaned_data

@@ -1,8 +1,10 @@
 from datetime import date
+from datetime import timedelta
 
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
+from django.utils import timezone
 
 from .models import ExtraService, Place, Profile
 
@@ -47,10 +49,11 @@ class BookingForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["place"].queryset = Place.objects.filter(is_active=True)
         self.fields["services"].queryset = ExtraService.objects.filter(is_active=True)
+        self.fields["day"].widget.attrs["min"] = timezone.localdate().isoformat()
 
     def clean_day(self):
         day = self.cleaned_data["day"]
-        if day < date.today():
+        if day < timezone.localdate():
             raise forms.ValidationError("Нельзя забронировать место задним числом.")
         return day
 
@@ -62,8 +65,6 @@ class BookingForm(forms.Form):
         if start is not None and end is not None and end <= start:
             self.add_error("end_hour", "Время окончания должно быть позже начала.")
         if day == date.today() and start is not None:
-            from django.utils import timezone
-
             if start <= timezone.localtime().hour:
                 self.add_error("start_hour", "Выберите ещё не прошедший час.")
         return cleaned

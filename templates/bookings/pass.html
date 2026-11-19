@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Пропуск на {{ day_pass.valid_on|date:"j E Y" }}{% endblock %}
+{% block content %}
+<section class="page-intro print-hidden"><a class="back-link" href="{% url 'dashboard' %}">← Мои бронирования</a><span class="eyebrow">Ваш электронный пропуск</span><h1>Добро пожаловать!</h1><p>Покажите этот пропуск администратору при входе.</p></section>
+<section class="pass-page"><article class="pass-card">
+  <div class="pass-card-head"><a class="brand" href="{% url 'home' %}"><span class="brand-mark">т.</span> Коворкинг «Точка»</a><span class="badge badge-active">Подтверждён</span></div>
+  <div class="pass-card-content">{% if day_pass.booking.resident.profile.photo %}<img class="pass-photo" src="{{ day_pass.booking.resident.profile.photo.url }}" alt="Фото резидента">{% endif %}<span class="eyebrow">Пропуск на {{ day_pass.valid_on|date:"j E Y" }}</span><h2>{{ day_pass.booking.resident.get_full_name|default:day_pass.booking.resident.username }}</h2><p>{{ day_pass.booking.place.name }} · {{ day_pass.booking.start_at|date:"H:i" }}–{{ day_pass.booking.end_at|date:"H:i" }}</p><code class="pass-code">{{ day_pass.code }}</code><small class="muted">Код проверяется администратором на входе</small></div>
+  <div class="pass-card-foot"><span>Бронь №{{ day_pass.booking_id }}</span><span>Выдан {{ day_pass.issued_at|date:"d.m.Y" }}</span></div>
+</article><button class="btn btn-primary print-hidden" type="button" onclick="window.print()">Распечатать пропуск</button></section>
+{% endblock %}
